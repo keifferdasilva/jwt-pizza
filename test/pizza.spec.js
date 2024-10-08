@@ -121,3 +121,9 @@ test('logout', async({page}) =>{
   await page.getByRole('link', { name: 'Logout' }).click();
   await page.pause();
 });
+
+test('not found', async ({page}) =>{
+  await page.goto('http://localhost:5173/test');
+  await expect(page.getByText('Oops')).toBeVisible();
+  await expect(page.getByText('It looks like we have dropped')).toBeVisible();
+});
