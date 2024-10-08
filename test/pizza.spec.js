@@ -46,33 +46,42 @@ test.beforeEach(async ({ page }) => {
       const logoutRes = {message: "logout successful"};
       await route.fulfill({json: logoutRes});
     }
+    else if(route.request().method() === 'POST'){
+      const registerReq = {name: "Keiffer da Silva", email: "k@jwt.com", password: "a"};
+      const registerRes = {user: {name: "Keiffer da Silva", email: "k@jwt.com", roles: [{role: "diner"}], "id": 5}, token: "eyJhb"};
+      expect(route.request().method()).toBe('POST');
+      expect(route.request().postDataJSON()).toMatchObject(registerReq);
+      await route.fulfill({json: registerRes});
+    }
     
   });
 
   await page.route('*/**/api/order', async (route) => {
-    const orderReq = {
-      items: [
-        { menuId: 1, description: 'Veggie', price: 0.0038 },
-        { menuId: 2, description: 'Pepperoni', price: 0.0042 },
-      ],
-      storeId: '4',
-      franchiseId: 2,
-    };
-    const orderRes = {
-      order: {
+    if(route.request().method() === 'POST'){
+      const orderReq = {
         items: [
           { menuId: 1, description: 'Veggie', price: 0.0038 },
           { menuId: 2, description: 'Pepperoni', price: 0.0042 },
         ],
         storeId: '4',
         franchiseId: 2,
-        id: 23,
-      },
-      jwt: 'eyJpYXQ',
-    };
-    expect(route.request().method()).toBe('POST');
-    expect(route.request().postDataJSON()).toMatchObject(orderReq);
-    await route.fulfill({ json: orderRes });
+      };
+      const orderRes = {
+        order: {
+          items: [
+            { menuId: 1, description: 'Veggie', price: 0.0038 },
+            { menuId: 2, description: 'Pepperoni', price: 0.0042 },
+          ],
+          storeId: '4',
+          franchiseId: 2,
+          id: 23,
+        },
+        jwt: 'eyJpYXQ',
+      };
+      expect(route.request().method()).toBe('POST');
+      expect(route.request().postDataJSON()).toMatchObject(orderReq);
+      await route.fulfill({ json: orderRes });
+    }
   });
 });
 
@@ -126,4 +135,21 @@ test('not found', async ({page}) =>{
   await page.goto('http://localhost:5173/test');
   await expect(page.getByText('Oops')).toBeVisible();
   await expect(page.getByText('It looks like we have dropped')).toBeVisible();
+});
+
+test('register', async ({page}) =>{
+  await page.goto('http://localhost:5173/register');
+  await expect(page.getByText('Welcome to the party')).toBeVisible();
+  await page.getByPlaceholder('Full name').click();
+  await page.getByPlaceholder('Full name').fill('Keiffer da Silva');
+  await page.getByPlaceholder('Full name').press('Tab');
+  await page.getByPlaceholder('Email address').fill('k@jwt.com');
+  await page.getByPlaceholder('Email address').press('Tab');
+  await page.getByPlaceholder('Password').fill('a');
+  await page.getByRole('button', { name: 'Register' }).click();
+  await expect(page.getByRole('link', { name: 'KS' })).toBeVisible();
+  await page.getByRole('link', { name: 'KS' }).click();
+  await expect(page.getByRole('main')).toContainText('Keiffer da Silva');
+  await expect(page.getByRole('main')).toContainText('k@jwt.com');
+  await expect(page.getByRole('main')).toContainText('diner');
 });
