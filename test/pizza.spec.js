@@ -159,3 +159,8 @@ test('about', async ({page}) =>{
   await expect(page.getByText('The secret sauce')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Our employees' })).toBeVisible();
 });
+
+test('history', async ({page}) =>{
+  await page.goto('http://localhost:5173/history');
+  await expect(page.getByText('Mama Rucci, my my')).toBeVisible();
+});
