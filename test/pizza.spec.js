@@ -169,3 +169,9 @@ test('docs', async ({page}) =>{
   await page.goto('http://localhost:5173/docs');
   await expect(page.getByText('JWT Pizza API')).toBeVisible();
 });
+
+test('no user dashboard', async ({page}) =>{
+  await page.goto('http://localhost:5173/diner-dashboard');
+  await expect(page.getByText('Oops')).toBeVisible();
+  await expect(page.getByText('It looks like we have dropped')).toBeVisible();
+});
