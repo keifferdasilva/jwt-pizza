@@ -9,4 +9,7 @@ export default defineConfig({
             requireEnv: false,
         }),
     ],
+    build: {
+        sourcemap: true,
+    },
 });

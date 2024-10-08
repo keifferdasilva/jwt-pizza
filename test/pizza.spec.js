@@ -56,6 +56,39 @@ test.beforeEach(async ({ page }) => {
     
   });
 
+  await page.route('*/**/api/order/verify', async (route) =>{
+    const verifyReq = {jwt: "eyJpYXQ"};
+    const verifyRes = {
+      "message": "valid",
+      "payload": {
+          "vendor": {
+              "id": "jwt-headquarters",
+              "name": "JWT Headquarters"
+          },
+          "diner": {
+              "id": 3,
+              "name": "Kai Chen",
+              "email": "d@jwt.com"
+          },
+          "order": {
+              "items": [
+                  {
+                      "menuId": 2,
+                      "description": "Pepperoni",
+                      "price": 0.0042
+                  }
+              ],
+              "storeId": "2",
+              "franchiseId": 1,
+              "id": 858
+          }
+        }
+    };
+    expect(route.request().method()).toBe('POST');
+    expect(route.request().postDataJSON()).toMatchObject(verifyReq);
+    await route.fulfill({json: verifyRes});
+  });
+
   await page.route('*/**/api/order', async (route) => {
     if(route.request().method() === 'POST'){
       const orderReq = {
@@ -117,6 +150,9 @@ test('purchase with login', async ({ page }) => {
 
   // Check balance
   await expect(page.getByText('0.008')).toBeVisible();
+  
+  await page.getByRole('button', {name: 'Verify'}).click();
+  await expect(page.getByText('JWT Pizza - valid')).toBeVisible();
 });
 
 test('logout', async({page}) =>{
