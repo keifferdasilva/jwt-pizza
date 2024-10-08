@@ -164,3 +164,8 @@ test('history', async ({page}) =>{
   await page.goto('http://localhost:5173/history');
   await expect(page.getByText('Mama Rucci, my my')).toBeVisible();
 });
+
+test('docs', async ({page}) =>{
+  await page.goto('http://localhost:5173/docs');
+  await expect(page.getByText('JWT Pizza API')).toBeVisible();
+});
